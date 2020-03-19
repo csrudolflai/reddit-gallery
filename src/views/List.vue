@@ -81,17 +81,31 @@
             <span v-html="domDecoder(c.data.selftext_html)"></span>
           </div>
 
+          <div v-else-if="c.isActive && c.data.secure_media" class="mt-4">
+            <span v-html="domDecoder(c.data.secure_media.oembed.html)"></span>
+          </div>
+
           <p v-else-if="c.data.selftext" class="text-grey-600 mb-2 text-truncate">
             <i class="lar la-eye"></i>
             {{ c.data.selftext }}
           </p>
 
-          <div v-else-if="c.data.post_hint == 'image' && c.isActive">
+          <div v-else-if="(c.data.post_hint == 'image' || isImageUrl(c.data.url)) && c.isActive">
             <img :src="c.data.url" width="100%" />
+            <video controls autoplay v-if="c.data.media && c.data.media.reddit_video">
+              <source :src="c.data.media.reddit_video.fallback_url" type="video/mp4" />
+            </video>
+            <video
+              controls
+              autoplay
+              v-else-if="c.data.preview && c.data.preview.reddit_video_preview"
+            >
+              <source :src="c.data.preview.reddit_video_preview.fallback_url" type="video/mp4" />
+            </video>
           </div>
 
           <p class="small text-muted">
-            <i class="lar la-eye" v-if="c.data.post_hint == 'image'"></i>
+            <i class="lar la-eye" v-if="c.data.post_hint == 'image' || isImageUrl(c.data.url)"></i>
             Submitted {{ c.data.created_utc | moment("from") }} by
             <a
               href="/"
@@ -139,6 +153,14 @@ export default {
     }
   },
   methods: {
+    isImageUrl(x) {
+      return (
+        x.endsWith(".jpg") ||
+        x.endsWith(".gif") ||
+        x.endsWith(".gifv") ||
+        x.endsWith(".png")
+      );
+    },
     go() {
       this.$router.push({
         name: "list",
