@@ -44,7 +44,7 @@
         v-for="(c, idx) in children"
         :key="c.data.id"
         class="row mt-4 redditPost"
-        @click="$set(c, 'isActive', !c.isActive)"
+        @click="seePost(c.data.permalink, c.data.title, c.data.selftext_html, c.data.score)"
       >
         <div class="col-1">
           <small class="text-muted">{{ idx + 1 }}</small>
@@ -68,7 +68,7 @@
           ></div>
         </div>
         <div class="col-7">
-          <span class="mr-2 title" v-html="c.data.title"></span>
+          <span class="mr-2 title" v-html="c.data.title" @click="$set(c, 'isActive', !c.isActive)"></span>
 
           <span
             v-if="c.data.link_flair_text"
@@ -153,6 +153,12 @@ export default {
     }
   },
   methods: {
+    seePost(permalink, title, postContent, score) {
+      this.$store.set("post_title", title);
+      this.$store.set("post_selftext_html", postContent);
+      this.$store.set("post_score", score);
+      this.$router.push(permalink);
+    },
     isImageUrl(x) {
       return (
         x.endsWith(".jpg") ||
